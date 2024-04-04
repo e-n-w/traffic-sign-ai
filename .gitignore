@@ -1,0 +1,5 @@
+data/Meta/*
+*.png
+*.npy
+*.pyc
+trained_model.keras
