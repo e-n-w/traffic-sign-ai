@@ -2,4 +2,4 @@ data/Meta/*
 *.png
 *.npy
 *.pyc
-trained_model.keras
+trained_model.*

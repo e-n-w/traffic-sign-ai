@@ -3,10 +3,10 @@ import numpy as np
 import keras
 import matplotlib.pyplot as plt
 
-data_dir = './data'
-train_path = './data/Train/'
-test_path = './data/Test/'
-preprocessed_data_path = './data/Preprocessed/'
+data_dir = './us_data'
+train_path = f'{data_dir}/Train/'
+test_path = f'{data_dir}/Test/'
+preprocessed_data_path = f'{data_dir}/Preprocessed/'
 
 NUM_CATEGORIES = len(os.listdir(train_path))
 
@@ -14,7 +14,7 @@ IMG_HEIGHT = 224
 IMG_WIDTH = 224
 channels = 3
 
-BAGGING_COUNT = 210
+BAGGING_COUNT = 250
 BATCH_SIZE = 32
 
 def preprocess_data(debug=False):
@@ -33,12 +33,11 @@ def preprocess_data(debug=False):
             img_arr = keras.utils.img_to_array(img=img)/255
             x_data.append(img_arr)
             class_int = int(classid)
-            y_instance = np.zeros(43)
-            y_instance[class_int] = 1.0
+            y_instance = class_int
             y_data.append(y_instance)
             if debug:
                 if i == 0:
-                    plt.subplot(7, 7, class_int + 1)
+                    plt.subplot(5, 10, class_int + 1)
                     plt.axis('off')
                     plt.imshow(img_arr)
             i += 1
