@@ -3,3 +3,4 @@ data/Meta/*
 *.npy
 *.pyc
 trained_model.*
+!us_data/Base/*
