@@ -7,6 +7,8 @@ data_dir = './us_data'
 train_path = f'{data_dir}/Train/'
 test_path = f'{data_dir}/Test/'
 preprocessed_data_path = f'{data_dir}/Preprocessed/'
+if not os.path.exists(preprocessed_data_path):
+    os.mkdir(preprocessed_data_path)
 
 NUM_CATEGORIES = len(os.listdir(train_path))
 

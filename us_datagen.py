@@ -7,8 +7,12 @@ import random
 from PIL import ImageFilter
 
 us_data_path = "./us_data"
+if not os.path.exists(f"{us_data_path}/Train"):
+    os.mkdir(f"{us_data_path}/Train")
+
 us_base_path = f"{us_data_path}/Base"
 us_train_path = f"{us_data_path}/Train"
+
 
 IMG_COUNT = 250
 color_jitter = layers_cv.RandomColorJitter(brightness_factor=(-0.6, 0.3), contrast_factor=(0, 0.2), saturation_factor=(0.3, 0.6), hue_factor=0.015, value_range=(0,255))
