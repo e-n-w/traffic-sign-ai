@@ -19,7 +19,7 @@ shear = layers_cv.RandomShear(x_factor=0.1, fill_mode="constant", fill_value=0.0
 for base_img_file in os.listdir(us_base_path):
     base_img_path = f"{us_base_path}/{base_img_file}"
     classid = base_img_file.split('.')[0]
-    index = 0
+    print(f"Working on class {classid}...")
     save_path = f"{us_train_path}/{classid}"
     if not os.path.isdir(save_path):
         os.mkdir(save_path)
@@ -32,7 +32,7 @@ for base_img_file in os.listdir(us_base_path):
         img_arr = rotation(img_arr)
         img_arr = color_jitter(img_arr, training=True)
         rand_kernel = random.randint(0,4)
-        img_blur = preprocessing.image.array_to_img(img_arr).filter(ImageFilter.GaussianBlur((rand_kernel, max(rand_kernel - 1, 0))))
+        img_blur = preprocessing.image.array_to_img(img_arr).filter(ImageFilter.GaussianBlur((rand_kernel)))
         img_arr = preprocessing.image.img_to_array(img_blur)
         rand_height = random.randint(24, 48)
         rand_width = rand_height + random.randint(-4, 0)

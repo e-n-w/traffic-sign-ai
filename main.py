@@ -1,11 +1,10 @@
 import tensorflow as tf
 import numpy as np
 import os
-from keras import models, layers, losses, callbacks, utils, preprocessing
+import keras
+from keras import models, layers, losses, callbacks, utils, optimizers
 from keras.applications import ResNet50V2
 import matplotlib.pyplot as plt
-import process_data
-from sklearn.utils import shuffle
 
 save_format = 'keras'
 
@@ -97,7 +96,7 @@ us_classes = {
     35:'Hairpin curve to the left',
     36:'Hairpin curve to the right',
     37:'Right lane ends',
-    38:'Mergine lanes',
+    38:'Merging lanes',
     39:'Crossroads',
     40:'Side road at a perpendicular angle to the left',
     41:'Side road at a perpendicular angle to the right',
@@ -111,8 +110,8 @@ us_classes = {
     49:'Dip'
 }
 
-dataset = 'us'
-if dataset == 'us':
+dataset_use = 'us'
+if dataset_use == 'us':
     num_classes = 50
     data_path = './us_data'
     classes = us_classes
@@ -147,30 +146,31 @@ class DataSequence(utils.Sequence):
         batch_y = self.y[low:high]
 
         return batch_x, batch_y
+    
+def load_single_image(path: str):
+    img = keras.utils.load_img(path,
+                               target_size=(224, 224),
+                               interpolation="bicubic")
+    img_arr = keras.utils.img_to_array(img=img)
+    return np.array(img_arr)
 
 if not (os.path.isfile(f'./trained_model.{save_format}')):
     print("No saved model found. Training...")
 
-    pre_data_path = f'{data_path}/Preprocessed/'
-    if not (os.path.isfile(f'{pre_data_path}x_data.npy') and os.path.isfile(f'{pre_data_path}y_data.npy')):
-        process_data.preprocess_data()
+    class_names = list(range(num_classes))
+    for i in range(len(class_names)):
+        class_names[i] = str(class_names[i])
+    
+    train_dataset = utils.image_dataset_from_directory(f"{data_path}/Train", class_names=class_names, image_size=(224,224), subset="training", validation_split=0.2, seed=42)
+    val_dataset = utils.image_dataset_from_directory(f"{data_path}/Train", class_names=class_names, image_size=(224,224), subset="validation", validation_split=0.2, seed=42)
 
-    x_data = np.load(f'{pre_data_path}x_data.npy')
-    y_data = np.load(f'{pre_data_path}y_data.npy')
-
-    print(x_data.shape)
-    print(y_data.shape)
-
-    X, y = shuffle(x_data, y_data)
-
-    early_stop = callbacks.EarlyStopping(monitor="loss", patience=3)
-
-    data_sequence = DataSequence(process_data.BATCH_SIZE, X, y)
+    early_stop = callbacks.EarlyStopping(monitor="val_loss", patience=3)
 
     conv_base = ResNet50V2(include_top=False, input_shape=(224,224,3), classes=num_classes, classifier_activation="softmax")
     conv_base.summary()
 
     inputs = layers.Input(shape=(224,224,3))
+    mod = layers.Rescaling(1./255)(inputs)
     mod = conv_base(inputs)
     mod = layers.GlobalAveragePooling2D()(mod)
     mod = layers.Dense(256, "relu")(mod)
@@ -178,13 +178,15 @@ if not (os.path.isfile(f'./trained_model.{save_format}')):
     outputs = layers.Dense(num_classes, "softmax")(mod)
 
     model = models.Model(inputs, outputs)
+
     model.summary()
 
-    model.compile(optimizer="adam", 
+    opt = optimizers.Adam(0.00001)
+    model.compile(optimizer=opt, 
                 loss=losses.SparseCategoricalCrossentropy(),
                 metrics=['accuracy'])
 
-    model.fit(data_sequence, epochs=10, batch_size=process_data.BATCH_SIZE, callbacks=[early_stop])
+    model.fit(train_dataset, epochs=10, batch_size=32, callbacks=[early_stop], validation_data=val_dataset)
 
     acc = model.history.history['accuracy']
     print(acc)
@@ -204,12 +206,13 @@ while(True):
     except:
         continue
     print(filename)
-    single_img = process_data.load_single_image(f'{data_path}/Test/{filename}')
+    single_img = load_single_image(f'{data_path}/Test/{filename}')
     result = model.predict(tf.expand_dims(single_img, axis=0))
+    print(result)
     res_class, proba, idx =  interpret_result(result)
     print(f"Predicted class: {classes[res_class]} (class={res_class}, proba={proba:.3})")
     fig = plt.subplot()
     fig.axis("off")
     fig.set_title(f"Predicted class: {classes[res_class]} (class={res_class}, proba={proba:.3})")
-    fig.imshow(single_img)
+    fig.imshow(single_img/255)
     plt.show()
