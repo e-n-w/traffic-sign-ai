@@ -1,6 +1,9 @@
 data/Meta/*
 *.png
+*.jpg
 *.npy
 *.pyc
 trained_model.*
+history/*
+plot_history.py
 !us_data/Base/*

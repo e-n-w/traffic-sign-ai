@@ -186,33 +186,40 @@ if not (os.path.isfile(f'./trained_model.{save_format}')):
                 loss=losses.SparseCategoricalCrossentropy(),
                 metrics=['accuracy'])
 
-    model.fit(train_dataset, epochs=10, batch_size=32, callbacks=[early_stop], validation_data=val_dataset)
+    model.fit(train_dataset, epochs=5, batch_size=32, callbacks=[early_stop], validation_data=val_dataset)
 
-    acc = model.history.history['accuracy']
-    print(acc)
+    acc = np.array(model.history.history['accuracy'])
+    val_acc = np.array(model.history.history['val_accuracy'])
+    loss = np.array(model.history.history['loss'])
+    val_loss = np.array(model.history.history['val_loss'])
 
     model.save(f'./trained_model.{save_format}')
+
+    np.save("history/acc.npy", acc)
+    np.save("history/val_acc.npy", val_acc)
+    np.save("history/loss.npy", loss)
+    np.save("history/val_loss.npy", val_loss)
 else:
     print("Loading Saved Model from File")
     model = models.load_model(f'./trained_model.{save_format}')
 print("Model finished training/loading")
 
-while(True):
-    img = input()
-    if img == "":
-        break
-    try:
-        filename = os.listdir(f'{data_path}/Test')[int(img)]
-    except:
-        continue
-    print(filename)
-    single_img = load_single_image(f'{data_path}/Test/{filename}')
-    result = model.predict(tf.expand_dims(single_img, axis=0))
-    print(result)
-    res_class, proba, idx =  interpret_result(result)
-    print(f"Predicted class: {classes[res_class]} (class={res_class}, proba={proba:.3})")
-    fig = plt.subplot()
-    fig.axis("off")
-    fig.set_title(f"Predicted class: {classes[res_class]} (class={res_class}, proba={proba:.3})")
-    fig.imshow(single_img/255)
-    plt.show()
+# while(True):
+#     img = input()
+#     if img == "":
+#         break
+#     try:
+#         filename = os.listdir(f'{data_path}/Test')[int(img)]
+#     except:
+#         continue
+#     print(filename)
+#     single_img = load_single_image(f'{data_path}/Test/{filename}')
+#     result = model.predict(tf.expand_dims(single_img, axis=0))
+#     print(result)
+#     res_class, proba, idx =  interpret_result(result)
+#     print(f"Predicted class: {classes[res_class]} (class={res_class}, proba={proba:.3})")
+#     fig = plt.subplot()
+#     fig.axis("off")
+#     fig.set_title(f"Predicted class: {classes[res_class]} (class={res_class}, proba={proba:.3})")
+#     fig.imshow(single_img/255)
+#     plt.show()

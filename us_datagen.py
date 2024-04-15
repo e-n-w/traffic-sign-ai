@@ -28,7 +28,7 @@ for base_img_file in os.listdir(us_base_path):
     if not os.path.isdir(save_path):
         os.mkdir(save_path)
     img = preprocessing.image.load_img(base_img_path)
-    img = tf.image.resize_with_pad(img, 128, 128)
+    img = tf.image.resize_with_pad(img, 256, 256)
     for index in range(IMG_COUNT + 1):
         img_arr = preprocessing.image.img_to_array(img)
         img_arr = zoom(img_arr)
@@ -38,7 +38,6 @@ for base_img_file in os.listdir(us_base_path):
         rand_kernel = random.randint(0,4)
         img_blur = preprocessing.image.array_to_img(img_arr).filter(ImageFilter.GaussianBlur((rand_kernel)))
         img_arr = preprocessing.image.img_to_array(img_blur)
-        rand_height = random.randint(24, 48)
-        rand_width = rand_height + random.randint(-4, 0)
-        img_arr = layers.Resizing(rand_height, rand_width, interpolation="lanczos3")(img_arr)
+        rand_height = random.randint(48, 224)
+        img_arr = layers.Resizing(rand_height, rand_height, interpolation="lanczos3")(img_arr)
         preprocessing.image.save_img(f"{save_path}/{classid}_{index}.png", img_arr)
