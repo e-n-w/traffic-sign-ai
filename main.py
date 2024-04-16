@@ -69,10 +69,6 @@ if dataset_use == 'us':
     num_classes = 50
     data_path = './us_data'
     classes = us_classes
-else:
-    num_classes = 43
-    data_path = './data'
-    classes = de_classes
 
 if not (os.path.isfile(f'./trained_model.{save_format}')):
     print("No saved model found. Training...")
