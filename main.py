@@ -102,7 +102,7 @@ if not (os.path.isfile(f'./trained_model.{save_format}')):
                 loss=losses.SparseCategoricalCrossentropy(),
                 metrics=['accuracy'])
 
-    model.fit(train_dataset, epochs=5, batch_size=32, callbacks=[early_stop], validation_data=val_dataset)
+    model.fit(train_dataset, epochs=10, batch_size=32, callbacks=[early_stop], validation_data=val_dataset)
 
     acc = np.array(model.history.history['accuracy'])
     val_acc = np.array(model.history.history['val_accuracy'])

@@ -7,3 +7,5 @@ trained_model.*
 history/*
 plot_history.py
 !us_data/Base/*
+*.zip
+*.gz

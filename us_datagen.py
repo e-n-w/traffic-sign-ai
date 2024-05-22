@@ -6,6 +6,14 @@ import os
 import random
 from PIL import ImageFilter
 
+def add_noise(img):
+    VARIABILITY = 50
+    deviation = VARIABILITY*random.random()
+    noise = np.random.normal(0, deviation, img.shape)
+    img += noise
+    np.clip(img, 0., 255.)
+    return img
+
 us_data_path = "./us_data"
 if not os.path.exists(f"{us_data_path}/Train"):
     os.mkdir(f"{us_data_path}/Train")
@@ -40,4 +48,5 @@ for base_img_file in os.listdir(us_base_path):
         img_arr = preprocessing.image.img_to_array(img_blur)
         rand_height = random.randint(48, 224)
         img_arr = layers.Resizing(rand_height, rand_height, interpolation="lanczos3")(img_arr)
+        img_arr = add_noise(img_arr)
         preprocessing.image.save_img(f"{save_path}/{classid}_{index}.png", img_arr)
